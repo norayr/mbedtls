@@ -11,8 +11,7 @@ PROCEDURE -includeZ
 PROCEDURE -begin*(host, port: pstr)
 "begin(host, port)";
 
-(*
-PROCEDURE zeroArr(VAR arr: ARRAY OF SYSTEM.BYTE);
+PROCEDURE zeroArr*(VAR arr: ARRAY OF SYSTEM.BYTE);
 VAR
   i: LONGINT;
 BEGIN
@@ -23,7 +22,7 @@ BEGIN
   UNTIL i = LEN(arr);
 END zeroArr;
 
-PROCEDURE dump(VAR arr: ARRAY OF SYSTEM.BYTE);
+PROCEDURE dump*(VAR arr: ARRAY OF SYSTEM.BYTE);
 VAR
   i: LONGINT;
 BEGIN
@@ -40,7 +39,6 @@ BEGIN
   Out.Ln;
   Out.String("------------------------------------------------------"); Out.Ln;
 END dump;
-*)
 
 PROCEDURE test;
 VAR
@@ -53,7 +51,7 @@ BEGIN
   begin(phost, pport);
 END test;
 
-BEGIN
- (* test*)
+(*BEGIN
+  test*)
 END mbedtls.
 

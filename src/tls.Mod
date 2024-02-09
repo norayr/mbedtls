@@ -1,7 +1,7 @@
 MODULE tls;
 
 IMPORT Out,
-       http, strTypes;
+       http, strTypes, mbedtls;
 
 (*
 PROCEDURE zeroArr(VAR arr: ARRAY OF SYSTEM.BYTE);
@@ -14,7 +14,7 @@ BEGIN
     INC(i);
   UNTIL i = LEN(arr);
 END zeroArr;
-*)
+
 PROCEDURE dump(VAR arr: ARRAY OF SYSTEM.BYTE);
 VAR
   i: LONGINT;
@@ -32,6 +32,7 @@ BEGIN
   Out.Ln;
   Out.String("------------------------------------------------------"); Out.Ln;
 END dump;
+*)
 
 PROCEDURE test;
 VAR
@@ -43,7 +44,7 @@ BEGIN
   COPY("norayr.am", host); COPY("448", port);
   h := http.Create(host, port, "index.html");
   hdrs := http.headersToString(h^.reqHeader);
-  dump(hdrs^);
+  mbedtls.dump(hdrs^);
 (*
   phost := SYSTEM.ADR(host); pport := SYSTEM.ADR(port);
   begin(phost, pport);
@@ -52,5 +53,5 @@ END test;
 
 BEGIN
   test
-END mbedtls.
+END tls.
 
