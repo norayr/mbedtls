@@ -1,4 +1,4 @@
-DEPEND = github.com/norayr/strutils github.com/norayr/http
+DEPEND = github.com/norayr/strutils github.com/norayr/Internet github.com/norayr/http
 
 VOC = /opt/voc/bin/voc
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
@@ -45,6 +45,7 @@ build_deps:
 
 buildThis:
 	cp $(mkfile_dir_path)/libs/*.a $(BUILD)/
+        cp $(mkfile_dir_path)/src/mb.h $(BUILD)/
 	cd $(BUILD) && cc -c $(mkfile_dir_path)/src/mb.c
 	cd $(BUILD) && $(VOC) -s $(mkfile_dir_path)/src/mbedtls.Mod  $(mkfile_dir_path)/src/tls.Mod -m
 
