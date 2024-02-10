@@ -40,15 +40,13 @@ VAR
   host: ARRAY 64 OF CHAR;
   port: ARRAY 8 OF CHAR;
   hdrs: strTypes.pstring;
+  len: LONGINT;
 BEGIN
   COPY("norayr.am", host); COPY("448", port);
   h := http.Create(host, port, "index.html");
-  hdrs := http.headersToString(h^.reqHeader);
-  mbedtls.dump(hdrs^);
-(*
-  phost := SYSTEM.ADR(host); pport := SYSTEM.ADR(port);
-  begin(phost, pport);
-  *)
+  hdrs := http.headersToString(h^.reqHeader, len);
+  (*mbedtls.dump(hdrs^);*)
+  mbedtls.call(host, port, hdrs^, len);
 END test;
 
 BEGIN

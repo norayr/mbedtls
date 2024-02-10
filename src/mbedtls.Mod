@@ -8,8 +8,8 @@ TYPE
 PROCEDURE -includeZ
 '#include "mb.h"';
 
-PROCEDURE -begin*(host, port: pstr)
-"begin(host, port)";
+PROCEDURE -begin*(host, port, headers: pstr; hl: LONGINT)
+"begin(host, port, headers, hl)";
 
 PROCEDURE zeroArr*(VAR arr: ARRAY OF SYSTEM.BYTE);
 VAR
@@ -40,6 +40,17 @@ BEGIN
   Out.String("------------------------------------------------------"); Out.Ln;
 END dump;
 
+PROCEDURE call*(host, port, headers: ARRAY OF CHAR; hlen: LONGINT);
+VAR
+  phost, pport, phdrs: pstr;
+BEGIN
+  (*COPY("google.com", host); COPY("448", port);*)
+  phost := SYSTEM.ADR(host); pport := SYSTEM.ADR(port); phdrs := SYSTEM.ADR(headers);
+  (*hlen := LEN(headers);*)
+  begin(phost, pport, phdrs, hlen);
+END call;
+
+(*
 PROCEDURE test;
 VAR
   host: ARRAY 64 OF CHAR;
@@ -50,7 +61,7 @@ BEGIN
   phost := SYSTEM.ADR(host); pport := SYSTEM.ADR(port);
   begin(phost, pport);
 END test;
-
+*)
 (*BEGIN
   test*)
 END mbedtls.
