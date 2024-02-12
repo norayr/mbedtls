@@ -42,10 +42,11 @@ VAR
   hdrs: strTypes.pstring;
   len: LONGINT;
 BEGIN
-  COPY("norayr.am", host); COPY("448", port);
-  h := http.Create(host, port, "index.html");
+  COPY("norayr.am", host); COPY("443", port);
+  h := http.Create(host, port, "/index.html");
   hdrs := http.headersToString(h^.reqHeader, len);
   (*mbedtls.dump(hdrs^);*)
+  DEC(len);
   mbedtls.call(host, port, hdrs^, len);
 END test;
 

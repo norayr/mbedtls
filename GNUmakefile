@@ -1,5 +1,5 @@
 DEPEND = github.com/norayr/strutils github.com/norayr/Internet github.com/norayr/http
-
+CC = gcc -O0
 VOC = /opt/voc/bin/voc
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
 mkfile_dir_path := $(shell dirname $(realpath $(firstword $(MAKEFILE_LIST))))
@@ -47,12 +47,12 @@ buildThis:
 	cp $(mkfile_dir_path)/certs/* $(BUILD)/
 	cp $(mkfile_dir_path)/libs/*.a $(BUILD)/
 	cp $(mkfile_dir_path)/src/mb.h $(BUILD)/
-	cd $(BUILD) && cc -c $(mkfile_dir_path)/src/mb.c
+	cd $(BUILD) && $(CC) -c $(mkfile_dir_path)/src/mb.c
 	cd $(BUILD) && $(VOC) -s $(mkfile_dir_path)/src/mbedtls.Mod
 	cd $(BUILD) && $(VOC) -cm $(mkfile_dir_path)/src/tls.Mod
-	#cd $(BUILD) && gcc -o Test *.o -static -L/opt/voc/lib -lvoc-O2 /opt/voc/lib/libvoc-O2.a -L. -lmbedtls -lmbedcrypto -lmbedx509 libmbedcrypto.a libmbedtls.a libmbedx509.a
+	cd $(BUILD) && gcc -o Test *.o -static -L/opt/voc/lib -lvoc-O2 /opt/voc/lib/libvoc-O2.a -L. -lmbedtls -lmbedcrypto -lmbedx509 libmbedcrypto.a libmbedtls.a libmbedx509.a
 	#cd $(BUILD) && gcc -o Test tls.o mbedtls.o mb.o *.o -static -L/opt/voc/lib -lvoc-O2 /opt/voc/lib/libvoc-O2.a -L. -lmbedtls -lmbedcrypto -lmbedx509 libmbedcrypto.a libmbedtls.a libmbedx509.a
-	cd $(BUILD) && gcc -o Test -L/opt/voc/lib -lvoc-O2 -lmbedtls -lmbedcrypto -lmbedx509 *.o
+	#cd $(BUILD) && $(CC) -o Test -L/opt/voc/lib -lvoc-O2 -lmbedtls -lmbedcrypto -lmbedx509 *.o
 	#cd $(BUILD) && gcc -o Test -L/opt/voc/lib -lvoc-O2 -lmbedtls -lmbedcrypto -lmbedx509 mbedtls.o mb.o
 
 tests:

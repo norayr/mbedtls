@@ -70,56 +70,26 @@ void initialize_mbedtls(mbedtls_net_context *ctx,
 {
     const char *pers = "mbedtls_client";
 
-// debug print of addresses
-    mbedtls_printf("entering init function\n");
-    mbedtls_printf("Address of ctx: %p\n", (void *)ctx);
-    mbedtls_printf("Address of ssl: %p\n", (void *)ssl);
-    mbedtls_printf("Address of conf: %p\n", (void *)conf);
-    mbedtls_printf("Address of entropy: %p\n", (void *)entropy);
-    mbedtls_printf("Address of ctr_drbg: %p\n", (void *)ctr_drbg);
-
-
-    print_net_context(ctx);
-    print_ssl_context(ssl);
-    print_ssl_config(conf);
-
     mbedtls_net_init(ctx);
 
-    print_net_context(ctx);
-    print_ssl_context(ssl);
-    print_ssl_config(conf);
-
     mbedtls_ssl_init(ssl);
-
-    print_net_context(ctx);
-    print_ssl_context(ssl);
-    print_ssl_config(conf);
 
     mbedtls_ssl_config_init(conf);
     mbedtls_ctr_drbg_init(ctr_drbg);
     mbedtls_entropy_init(entropy);
-    print_net_context(ctx);
-    print_ssl_context(ssl);
-    print_ssl_config(conf);
 
     mbedtls_x509_crt_init(cacert); // Initialize the certificate chain
 
-    print_net_context(ctx);
-    print_ssl_context(ssl);
-    print_ssl_config(conf);
-
-
     // Seed the random number generator
     mbedtls_ctr_drbg_seed(ctr_drbg, mbedtls_entropy_func, entropy, (const unsigned char *) pers, strlen(pers));
-
 
     // Set up the SSL/TLS structure
     mbedtls_ssl_config_defaults(conf, MBEDTLS_SSL_IS_CLIENT, MBEDTLS_SSL_TRANSPORT_STREAM, MBEDTLS_SSL_PRESET_DEFAULT);
     mbedtls_ssl_conf_rng(conf, mbedtls_ctr_drbg_random, ctr_drbg);
 
     // Load the trusted CA certificates
-    //int ret = mbedtls_x509_crt_parse_file(cacert, "./ca-certificates.crt");
-    int ret = mbedtls_x509_crt_parse_file(cacert, "/etc/ssl/certs/ca-certificates.crt");
+    int ret = mbedtls_x509_crt_parse_file(cacert, "./ca-certificates.crt");
+    //int ret = mbedtls_x509_crt_parse_file(cacert, "/etc/ssl/certs/ca-certificates.crt");
     //int ret = mbedtls_x509_crt_parse_file(cacert, "./isrgrootx1.pem");
 
     if (ret != 0) {
@@ -133,69 +103,23 @@ void initialize_mbedtls(mbedtls_net_context *ctx,
     // Set the CA chain for certificate verification
     mbedtls_ssl_conf_ca_chain(conf, cacert, NULL);
 
-// debug
-//mbedtls_ssl_conf_dbg(conf, my_debug, stdout);
-//mbedtls_debug_set_threshold(4);
-
-
-
-
     // Continue with the SSL setup
     mbedtls_ssl_setup(ssl, conf);
-
-// debug again
-    mbedtls_printf("exiting init function\n");
-    mbedtls_printf("Address of ctx: %p\n", (void *)ctx);
-    mbedtls_printf("Address of ssl: %p\n", (void *)ssl);
-    mbedtls_printf("Address of conf: %p\n", (void *)conf);
-    mbedtls_printf("Address of entropy: %p\n", (void *)entropy);
-    mbedtls_printf("Address of ctr_drbg: %p\n", (void *)ctr_drbg);
-
-
-    print_net_context(ctx);
-    print_ssl_context(ssl);
-    print_ssl_config(conf);
-
-
 }
 
-void connect_to_server(mbedtls_net_context *ctx,
-                       mbedtls_ssl_context *ssl,
-                       const char *hostname,
-                       const char *port)
+void connect_to_server(mbedtls_net_context *ctx, mbedtls_ssl_context *ssl, const char * hostname, const char * port)
 {
-    mbedtls_printf("entered connect_to_server function\n");
-    mbedtls_printf("Address of ctx: %p\n", (void *)ctx);
-    mbedtls_printf("Address of ssl: %p\n", (void *)ssl);
-    mbedtls_printf("host: %s\n", hostname);
-    mbedtls_printf("port: %s\n", port);
+    printf("entered connect_to_server function\n");
+    mbedtls_printf("host: '%s'\n", hostname);
+    mbedtls_printf("port: '%s'\n", port);
 
-    print_net_context(ctx);
-    print_ssl_context(ssl);
-
-
-
-
-    mbedtls_printf("ACHTUNG\n");
-    // Establish a TCP connection
-    mbedtls_net_connect(ctx, hostname, port, MBEDTLS_NET_PROTO_TCP);
-    print_net_context(ctx);
-    print_ssl_context(ssl);
-
-    mbedtls_printf("ACHTUNG\n");
+    int i;
+    i= mbedtls_net_connect(ctx, hostname, port, MBEDTLS_NET_PROTO_TCP);
 
     // Set the input/output functions for the SSL context
     mbedtls_ssl_set_bio(ssl, ctx, mbedtls_net_send, mbedtls_net_recv, NULL);
 
-    print_net_context(ctx);
-    print_ssl_context(ssl);
-
-
-
-    mbedtls_ssl_set_hostname(ssl, hostname);
-    // Perform the SSL handshake
-    print_net_context(ctx);
-    print_ssl_context(ssl);
+    i= mbedtls_ssl_set_hostname(ssl, hostname);
 
     int ret = mbedtls_ssl_handshake(ssl);
     if (ret != 0) {
@@ -205,46 +129,18 @@ void connect_to_server(mbedtls_net_context *ctx,
         mbedtls_printf("Handshake failed: %s\n", error_buf);
         return;
     }
-    mbedtls_printf("exiting connect_to_server function\n");
-    mbedtls_printf("Address of ctx: %p\n", (void *)ctx);
-    mbedtls_printf("Address of ssl: %p\n", (void *)ssl);
-    print_net_context(ctx);
-    print_ssl_context(ssl);
-
-
 }
 
-//void send_request_and_read_response() {
 void send_request_and_read_response(mbedtls_ssl_context *ssl, const char *hostname, const char *headers, int hlen) {
-
-    mbedtls_printf("got hostname: %s\n", hostname);
-    mbedtls_printf("got headers: %s\n", headers);
-    mbedtls_printf("headers length: %i\n", hlen);
-    /* very old code
-    const char *http_request = "GET / HTTP/1.1\r\nHost: google.com\r\n\r\n";
-    */
-    /* old code
-    const char *http_request_format = "GET / HTTP/1.1\r\nHost: %s\r\n\r\n";
-    char http_request[256]; // Ensure this buffer is large enough to hold the request string.
-    snprintf(http_request, sizeof(http_request), http_request_format, hostname);
-    size_t len = strlen(http_request);
-    */
-
-    print_ssl_context(ssl);
 
 
     // Send an HTTP request over TLS
     mbedtls_ssl_write(ssl, (const unsigned char *) headers, hlen);
-    print_ssl_context(ssl);
-
 
     // Read the server's response
     const int buf_size = 4096;
     unsigned char buf[buf_size];
     int ret = mbedtls_ssl_read(ssl, buf, buf_size - 1);
-
-    print_ssl_context(ssl);
-
 
     if (ret > 0) {
         buf[ret] = '\0';
@@ -268,12 +164,11 @@ void close_connection(mbedtls_net_context *ctx,
     mbedtls_entropy_free(entropy);
 }
 
-void begin(const char *hostname, const char *port, const char *headers, int len)
-//int main()
+#include "/opt/voc/C/include/SYSTEM.h"
+
+void begin(const char *hostname, ADDRESS hostname__len, const char *port, ADDRESS port__len, const char *headers, int len)
 {
-  //const char *hostname="norayr.am"; const char *port="443";
-  mbedtls_printf("Got hostname: %s\n", hostname);
-  mbedtls_printf("Got headers: %s\n", headers);
+
   mbedtls_net_context server_fd;
   mbedtls_ssl_context ssl;
   mbedtls_ssl_config conf;
@@ -283,12 +178,9 @@ void begin(const char *hostname, const char *port, const char *headers, int len)
   mbedtls_x509_crt cacert;
 
   initialize_mbedtls(&server_fd, &ssl, &conf, &entropy, &ctr_drbg, &cacert);
-    //connect_to_server(&server_fd, &ssl, "google.com", "443");
     connect_to_server(&server_fd, &ssl, hostname, port);
     send_request_and_read_response(&ssl, hostname, headers, len);
     close_connection(&server_fd, &ssl, &conf, &entropy, &ctr_drbg);
 }
-
-
 
 

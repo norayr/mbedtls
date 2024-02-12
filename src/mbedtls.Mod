@@ -7,9 +7,13 @@ TYPE
 
 PROCEDURE -includeZ
 '#include "mb.h"';
-
+(*
 PROCEDURE -begin*(host, port, headers: pstr; hl: LONGINT)
 "begin(host, port, headers, hl)";
+*)
+PROCEDURE -begin*(host, port, headers: ARRAY OF CHAR; hl: LONGINT)
+"begin(host, host__len,  port, port__len, headers, hl)";
+
 
 PROCEDURE zeroArr*(VAR arr: ARRAY OF SYSTEM.BYTE);
 VAR
@@ -44,10 +48,9 @@ PROCEDURE call*(host, port, headers: ARRAY OF CHAR; hlen: LONGINT);
 VAR
   phost, pport, phdrs: pstr;
 BEGIN
-  (*COPY("google.com", host); COPY("448", port);*)
   phost := SYSTEM.ADR(host); pport := SYSTEM.ADR(port); phdrs := SYSTEM.ADR(headers);
-  (*hlen := LEN(headers);*)
-  begin(phost, pport, phdrs, hlen);
+  (*begin(phost, pport, phdrs, hlen);*)
+   begin(host, port, headers, hlen);
 END call;
 
 (*
@@ -57,7 +60,7 @@ VAR
   port: ARRAY 8 OF CHAR;
   phost, pport: pstr;
 BEGIN
-  COPY("google.com", host); COPY("448", port);
+  COPY("norayr.am", host); COPY("443", port);
   phost := SYSTEM.ADR(host); pport := SYSTEM.ADR(port);
   begin(phost, pport);
 END test;
