@@ -107,35 +107,102 @@ void initialize_mbedtls(mbedtls_net_context *ctx,
     mbedtls_ssl_setup(ssl, conf);
 }
 
-void connect_to_server(mbedtls_net_context *ctx, mbedtls_ssl_context *ssl, const char * hostname, const char * port)
+//int sslConnect(char *ctx, char *ssl, const char * hostname, const char * port)
+int sslConnect(char *ctx, char *ssl, const char *conf, const char * entropy, const char * ctr, const char * crt, const char * hostname, const char * port)
 {
-    printf("entered connect_to_server function\n");
+initialize_mbedtls((mbedtls_net_context *)  ctx,
+                    (mbedtls_ssl_context *) ssl,
+                    (mbedtls_ssl_config *) conf,
+            (mbedtls_entropy_context *) entropy,
+            (mbedtls_ctr_drbg_context *)    ctr,
+            (mbedtls_x509_crt *)           crt);
+
+
+
+    printf("entered sslConnect function\n");
     mbedtls_printf("host: '%s'\n", hostname);
     mbedtls_printf("port: '%s'\n", port);
 
     int i;
-    i= mbedtls_net_connect(ctx, hostname, port, MBEDTLS_NET_PROTO_TCP);
+    i = mbedtls_net_connect((mbedtls_net_context *)ctx, hostname, port, MBEDTLS_NET_PROTO_TCP);
 
     // Set the input/output functions for the SSL context
-    mbedtls_ssl_set_bio(ssl, ctx, mbedtls_net_send, mbedtls_net_recv, NULL);
+    mbedtls_ssl_set_bio((mbedtls_ssl_context *)ssl, (mbedtls_net_context *)ctx, mbedtls_net_send, mbedtls_net_recv, NULL);
 
-    i= mbedtls_ssl_set_hostname(ssl, hostname);
+    i= mbedtls_ssl_set_hostname((mbedtls_ssl_context *)ssl, hostname);
 
-    int ret = mbedtls_ssl_handshake(ssl);
+    int ret = mbedtls_ssl_handshake((mbedtls_ssl_context *)ssl);
     if (ret != 0) {
         // Handle failed handshake
         char error_buf[100];
         mbedtls_strerror(ret, error_buf, 100);
         mbedtls_printf("Handshake failed: %s\n", error_buf);
-        return;
     }
+    return ret;
 }
+/*
+int sslConnect(char *ctx, char *ssl, const char * hostname, const char * port)
+{
+    printf("entered sslConnect function\n");
+    mbedtls_printf("host: '%s'\n", hostname);
+    mbedtls_printf("port: '%s'\n", port);
 
+    int i;
+    i = mbedtls_net_connect((mbedtls_net_context *)ctx, hostname, port, MBEDTLS_NET_PROTO_TCP);
+
+    // Set the input/output functions for the SSL context
+    mbedtls_ssl_set_bio((mbedtls_ssl_context *)ssl, (mbedtls_net_context *)ctx, mbedtls_net_send, mbedtls_net_recv, NULL);
+
+    i= mbedtls_ssl_set_hostname(ssl, hostname);
+
+    int ret = mbedtls_ssl_handshake((mbedtls_ssl_context *)ssl);
+    if (ret != 0) {
+        // Handle failed handshake
+        char error_buf[100];
+        mbedtls_strerror(ret, error_buf, 100);
+        mbedtls_printf("Handshake failed: %s\n", error_buf);
+    }
+    return ret;
+}
+*/
+
+int sslRead(char *ssl, char *buf, int blen)
+{
+  int i;
+  i = mbedtls_ssl_read((mbedtls_ssl_context *)ssl, buf, blen);
+  return i;
+}
+/*
+int sslRead(mbedtls_ssl_context *ssl, const char *buf, int blen)
+{
+  int i;
+  i = mbedtls_ssl_read(ssl, buf, blen);
+  return i;
+}
+*/
+/*
+int sslWrite(mbedtls_ssl_context *ssl, const char *req, int rlen)
+{
+  int i;
+  i = mbedtls_ssl_write(ssl, req, rlen);
+  return i;
+
+}
+*/
+int sslWrite(char *ssl, char *req, int rlen)
+{
+  int i;
+  i = mbedtls_ssl_write((mbedtls_ssl_context *)ssl, req, rlen);
+  return i;
+
+}
+/*
 void send_request_and_read_response(mbedtls_ssl_context *ssl, const char *hostname, const char *headers, int hlen) {
 
 
     // Send an HTTP request over TLS
-    mbedtls_ssl_write(ssl, (const unsigned char *) headers, hlen);
+    //mbedtls_ssl_write(ssl, (const unsigned char *) headers, hlen);
+    sslWrite(ssl, headers, hlen);
 
     // Read the server's response
     const int buf_size = 4096;
@@ -149,8 +216,20 @@ void send_request_and_read_response(mbedtls_ssl_context *ssl, const char *hostna
         mbedtls_printf("Receive failed\n");// Handle read error or connection close
     }
 }
+*/
+void sslDisconnect(char *ctx, char *ssl, char *conf, char *entropy, char *ctr_drbg)
+{
 
-void close_connection(mbedtls_net_context *ctx,
+    mbedtls_ssl_close_notify((mbedtls_ssl_context *)ssl);
+    mbedtls_net_free((mbedtls_net_context *)ctx);
+    mbedtls_ssl_free((mbedtls_ssl_context *)ssl);
+    mbedtls_ssl_config_free((mbedtls_ssl_config *)conf);
+    mbedtls_ctr_drbg_free((mbedtls_ctr_drbg_context *)ctr_drbg);
+    mbedtls_entropy_free((mbedtls_entropy_context *)entropy);
+}
+
+/*
+void sslDisconnect(mbedtls_net_context *ctx,
                       mbedtls_ssl_context *ssl,
                       mbedtls_ssl_config *conf,
                       mbedtls_entropy_context *entropy,
@@ -163,9 +242,10 @@ void close_connection(mbedtls_net_context *ctx,
     mbedtls_ctr_drbg_free(ctr_drbg);
     mbedtls_entropy_free(entropy);
 }
+*/
 
 #include "/opt/voc/C/include/SYSTEM.h"
-
+/*
 void begin(const char *hostname, ADDRESS hostname__len, const char *port, ADDRESS port__len, const char *headers, int len)
 {
 
@@ -178,9 +258,9 @@ void begin(const char *hostname, ADDRESS hostname__len, const char *port, ADDRES
   mbedtls_x509_crt cacert;
 
   initialize_mbedtls(&server_fd, &ssl, &conf, &entropy, &ctr_drbg, &cacert);
-    connect_to_server(&server_fd, &ssl, hostname, port);
+    sslConnect(&server_fd, &ssl, hostname, port);
     send_request_and_read_response(&ssl, hostname, headers, len);
-    close_connection(&server_fd, &ssl, &conf, &entropy, &ctr_drbg);
+    sslDisconnect(&server_fd, &ssl, &conf, &entropy, &ctr_drbg);
 }
 
-
+*/

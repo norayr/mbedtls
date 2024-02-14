@@ -1,19 +1,56 @@
 MODULE mbedtls;
 
-IMPORT SYSTEM, Out;
+IMPORT SYSTEM, Out, http;
 
-TYPE
-  pstr = SYSTEM.ADDRESS;
+(*
+PROCEDURE -aincludeA
+'#include "mbedtls/net.h"';
 
-PROCEDURE -includeZ
+PROCEDURE -aincludeB
+'#include "mbedtls/ssl.h"';
+
+PROCEDURE -aincludeE
+'#include "mbedtls/entropy.h"';
+
+PROCEDURE -aincludeC
+'#include "mbedtls/ctr_drbg.h"';
+
+PROCEDURE -aincludeCo
+'#include "mbedtls/config.h"';
+*)
+(*
+PROCEDURE -aincludeNS
+'#include "mbedtls/net_sockets.h"';
+*)
+(*
+#include "mbedtls/platform.h"
+#include "mbedtls/net_sockets.h"
+*)
+(*
+#include "mbedtls/error.h"
+#include "string.h" // for strlen
+*)
+
+PROCEDURE -aaa
 '#include "mb.h"';
 (*
-PROCEDURE -begin*(host, port, headers: pstr; hl: LONGINT)
+PROCEDURE -begin*(host, port, headers: ARRAY OF CHAR; hl: LONGINT)
 "begin(host, port, headers, hl)";
 *)
-PROCEDURE -begin*(host, port, headers: ARRAY OF CHAR; hl: LONGINT)
+(*PROCEDURE -begin*(host, port: ARRAY OF CHAR; headers: http.headers; hl: LONGINT)
 "begin(host, host__len,  port, port__len, headers, hl)";
+*)
+PROCEDURE -connect*(VAR netCtx, sslCtx, conf, entr, ctr, crt: ARRAY OF SYSTEM.BYTE; VAR host, port: ARRAY OF CHAR): LONGINT
+"(LONGINT)sslConnect(netCtx, sslCtx, conf, entr, ctr, crt, host, port)";
 
+PROCEDURE -disconnect*(VAR netCtx, sslCtx, sslConf, entr, ctr: ARRAY OF SYSTEM.BYTE)
+"sslDisconnect(netCtx, sslCtx, sslConf, entr, ctr)";
+
+PROCEDURE -write*(VAR sslCntx: ARRAY OF SYSTEM.BYTE; VAR str: ARRAY OF CHAR; len: LONGINT): LONGINT
+"(LONGINT)sslWrite(sslCntx, str, len)";
+
+PROCEDURE -read*(VAR sslCntx: ARRAY OF SYSTEM.BYTE; VAR str: ARRAY OF CHAR; len: LONGINT): LONGINT
+"(LONGINT)sslRead(sslCntx, str, len)";
 
 PROCEDURE zeroArr*(VAR arr: ARRAY OF SYSTEM.BYTE);
 VAR
@@ -43,7 +80,7 @@ BEGIN
   Out.Ln;
   Out.String("------------------------------------------------------"); Out.Ln;
 END dump;
-
+(*
 PROCEDURE call*(host, port, headers: ARRAY OF CHAR; hlen: LONGINT);
 VAR
   phost, pport, phdrs: pstr;
@@ -52,7 +89,7 @@ BEGIN
   (*begin(phost, pport, phdrs, hlen);*)
    begin(host, port, headers, hlen);
 END call;
-
+*)
 (*
 PROCEDURE test;
 VAR

@@ -19,17 +19,17 @@ all: get_deps build_deps buildThis
 
 get_deps:
 	@for i in $(DEPEND); do \
-			if [ -d "$(DPS)/$${i}" ]; then \
-				 cd "$(DPS)/$${i}"; \
-				 git pull; \
-				 cd - ;    \
-				 else \
-				 mkdir -p "$(DPS)/$${i}"; \
-				 cd "$(DPS)/$${i}"; \
-				 cd .. ; \
-				 git clone "https://$${i}"; \
-				 cd - ; \
-			fi; \
+		if [ -d "$(DPS)/$${i}" ]; then \
+			cd "$(DPS)/$${i}"; \
+			git pull; \
+			cd - ;    \
+			else \
+			mkdir -p "$(DPS)/$${i}"; \
+			cd "$(DPS)/$${i}"; \
+			cd .. ; \
+			git clone "https://$${i}"; \
+			cd - ; \
+		fi; \
 	done
 
 build_deps:
@@ -49,7 +49,7 @@ buildThis:
 	cp $(mkfile_dir_path)/src/mb.h $(BUILD)/
 	cd $(BUILD) && $(CC) -c $(mkfile_dir_path)/src/mb.c
 	cd $(BUILD) && $(VOC) -s $(mkfile_dir_path)/src/mbedtls.Mod
-	cd $(BUILD) && $(VOC) -cm $(mkfile_dir_path)/src/tls.Mod
+	cd $(BUILD) && $(VOC) -cm $(mkfile_dir_path)/src/https.Mod
 	cd $(BUILD) && gcc -o Test *.o -static -L/opt/voc/lib -lvoc-O2 /opt/voc/lib/libvoc-O2.a -L. -lmbedtls -lmbedcrypto -lmbedx509 libmbedcrypto.a libmbedtls.a libmbedx509.a
 	#cd $(BUILD) && gcc -o Test tls.o mbedtls.o mb.o *.o -static -L/opt/voc/lib -lvoc-O2 /opt/voc/lib/libvoc-O2.a -L. -lmbedtls -lmbedcrypto -lmbedx509 libmbedcrypto.a libmbedtls.a libmbedx509.a
 	#cd $(BUILD) && $(CC) -o Test -L/opt/voc/lib -lvoc-O2 -lmbedtls -lmbedcrypto -lmbedx509 *.o
@@ -61,3 +61,4 @@ tests:
 
 clean:
 	if [ -d "$(BUILD)" ]; then rm -rf $(BLD); fi
+
