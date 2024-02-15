@@ -52,6 +52,11 @@ PROCEDURE -write*(VAR sslCntx: ARRAY OF SYSTEM.BYTE; VAR str: ARRAY OF CHAR; len
 PROCEDURE -read*(VAR sslCntx: ARRAY OF SYSTEM.BYTE; VAR str: ARRAY OF CHAR; len: LONGINT): LONGINT
 "(LONGINT)sslRead(sslCntx, str, len)";
 
+(*PROCEDURE -readBuf*(VAR sslCntx: ARRAY OF SYSTEM.BYTE; VAR str: ARRAY OF CHAR; VAR len: LONGINT): LONGINT*)
+PROCEDURE -readBuf*(VAR netCntx, sslCntx: ARRAY OF SYSTEM.BYTE; VAR str: ARRAY OF CHAR; VAR len: LONGINT): LONGINT
+"(LONGINT)sslReadBuf(netCntx, sslCntx, str, str__len, len)";
+
+
 PROCEDURE zeroArr*(VAR arr: ARRAY OF SYSTEM.BYTE);
 VAR
   i: LONGINT;

@@ -1,6 +1,6 @@
 MODULE https;
 
-IMPORT Strings, Out,
+IMPORT SYSTEM, Strings, Out,
        http, strTypes, strUtils, mbedtls;
 
 TYPE
@@ -17,6 +17,9 @@ TYPE
      ctrDrbg*    : ARRAY 512 OF CHAR;   (* 392 bytes *)
      cacert*     : ARRAY 1024 OF CHAR; (* 616 bytes *)
    END;
+
+PROCEDURE -aaa
+'#include "mb.h"';
 
 PROCEDURE connector(VAR h: http.Client):BOOLEAN;
 VAR i: LONGINT;
@@ -65,7 +68,11 @@ BEGIN
     r := -1;
   IF h^.trn IS TLSSocket THEN
     IF toRead = -1 THEN len := LEN(buf)-1 ELSE len := toRead END;
+                                      Out.String("-----------------------"); Out.Ln;
+                                      Out.String("entered reader, len is "); Out.Int(len, 0);  Out.Ln;
     r := mbedtls.read(h^.trn(TLSSocket).sslContext, buf, len);
+    Out.String("have read: '"); Out.String(buf); Out.Char("'"); Out.Ln;
+                                      Out.String("-----------------------"); Out.Ln;
   ELSE
     Out.String("https client is not initialized with tls socket"); Out.Ln;
     HALT(5);
@@ -74,18 +81,33 @@ BEGIN
 END reader;
 
   (* returns number of bytes read *)
+
 PROCEDURE readBuf(VAR h: http.Client; VAR buf: ARRAY OF CHAR; VAR haveRead: LONGINT): BOOLEAN;
 VAR
   r: LONGINT;
 BEGIN
-  r := -1;
+  h^.connectionFlag := FALSE;
   IF h^.trn IS TLSSocket THEN
-    r := mbedtls.read(h^.trn(TLSSocket).sslContext, buf, haveRead);
-  ELSE
+                                      Out.String("-----------------------"); Out.Ln;
+                                      Out.String("entered readBuf, len is "); Out.Int(LEN(buf), 0); Out.String(" passed haveRead is "); Out.Int(haveRead, 0);  Out.Ln;
+    (*r := mbedtls.read(h^.trn(TLSSocket).sslContext, buf, haveRead);*)
+    (*r := mbedtls.readBuf(h^.trn(TLSSocket).sslContext, buf, haveRead);*)
+    r := mbedtls.readBuf(h^.trn(TLSSocket).netContext, h^.trn(TLSSocket).sslContext, buf, haveRead);
+    IF r <= 0 THEN
+      h^.connectionFlag := FALSE;
+      haveRead := 0;
+    ELSE
+      h^.connectionFlag := TRUE
+    END;
+                                      Out.String("after readBuf r is "); Out.Int(r, 0);  Out.Ln;
+                                      Out.String("after readBuf haveRead is "); Out.Int(haveRead, 0);  Out.Ln;
+                                      Out.String("have read: '"); Out.String(buf); Out.Char("'"); Out.Ln;
+                                      Out.String("-----------------------"); Out.Ln;
+   ELSE
     Out.String("https client is not initialized with tls socket"); Out.Ln;
     HALT(5);
   END;
-  RETURN (r > 0)
+  RETURN h^.connectionFlag
 END readBuf;
 
 PROCEDURE Create*(host, port, path: ARRAY OF CHAR): TLSClient;
@@ -179,17 +201,10 @@ VAR
   answer: strTypes.pstring;
 BEGIN
   COPY("norayr.am", host); COPY("443", port);
-  h := Create(host, port, "/index.html");
+  (*h := Create(host, port, "/index.html");*)
+  h := Create(host, port, "/SETs.pdf");
   answer := h.Get(h);
   h.Save(h);
-     (*
-       hdrs := http.headersToString(h^.reqHeader, len);
-       (*mbedtls.dump(hdrs^);*)
-       DEC(len);
-     *)
-  (*mbedtls.call(host, port, h^.reqHeader, len);*)
-  (*mbedtls.begin(h^.host^, h^.port^, h^.reqHeader^, len);*)
-  (*mbedtls.connect(h^.trn.netContext, h^.trn.sslContext, h^.host, h^.reqHeader^, len);*)
 END test;
 
 BEGIN

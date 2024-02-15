@@ -20,4 +20,6 @@ int sslWrite(char *ssl, char * req, int rlen);
 //int sslRead(mbedtls_ssl_context ssl, char *buf, int blen);
 int sslRead(char *ssl, char *buf, int blen);
 
+//int sslReadBuf(char *ssl, char *output, int output_size, int *read_len);
+int sslReadBuf(char * net, char *ssl, char *output, int output_size, int *read_len);
 

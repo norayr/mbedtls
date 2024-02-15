@@ -172,6 +172,95 @@ int sslRead(char *ssl, char *buf, int blen)
   i = mbedtls_ssl_read((mbedtls_ssl_context *)ssl, buf, blen);
   return i;
 }
+
+/**
+ * Reads from an SSL connection until no more data is available or the buffer is full.
+ *
+ * @param ssl Pointer to an active mbedtls_ssl_context.
+ * @param output Buffer to store the read data.
+ * @param output_size Size of the output buffer.
+ * @param read_len Pointer to a variable to store the number of bytes read.
+ * @return 0 on success, MBEDTLS_ERR_SSL_WANT_READ if no data is currently available,
+ *         or another MBEDTLS error code on failure.
+ */
+  // read till empty
+//#include "mbedtls/debug.h"
+/*
+int sslReadBuf(char * net, char *ssl, char *output, int output_size, int *read_len) {
+    //if (!ssl || !output || output_size <= 0 || !read_len) {
+    if (!ssl || !output || output_size <= 0 ) {
+        mbedtls_printf("Invalid parameters\n");
+        return MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
+    }
+
+    mbedtls_printf("entered sslReadBuf, output size=%d\n", output_size);
+    int tmp = 0;
+    tmp = mbedtls_net_set_nonblock( (mbedtls_net_context *) net);
+    mbedtls_printf("set non block %d\n", tmp);
+    int ret = 0;
+    //*read_len = 0;
+    do {
+    ret = mbedtls_ssl_read((mbedtls_ssl_context *)ssl, (unsigned char *)(output + *read_len), 64);
+    //mbedtls_printf("read exited, ret is %d\n", ret);
+
+    if (ret > 0) {
+        mbedtls_printf("Read %d bytes\n", ret);
+        *read_len += ret;  // Accumulate the total read length
+        mbedtls_printf("read_len is %d\n", *read_len);
+    //} else if (ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE) {
+    } else if (ret < 0 ) {
+        // Non-blocking read would block, can exit or handle accordingly
+        mbedtls_printf("ret < 0, ret = %d\n", ret);
+        //mbedtls_printf("Non-blocking read would block, exiting loop.\n");
+        break;
+    //} else if (ret <= 0) {
+    } else if (ret = 0) {
+        mbedtls_printf("r=0");
+        //mbedtls_printf("Read error or no more data: %d\n", ret);
+        //(unsigned char *)output[*read_len]=0;
+        break;  // Exit loop on error or no more data to read
+    }
+} while ((*read_len < output_size) && ret > 0);
+
+    tmp = mbedtls_net_set_block( (mbedtls_net_context *) net);
+    mbedtls_printf("set block %d\n", tmp);
+    return ret;
+}
+*/
+#ifndef MIN
+#define MIN(a, b) ((a) < (b) ? (a) : (b))
+#endif
+
+int sslReadBuf(char *net, char *ssl, char *output, int output_size, int *read_len) {
+    if (!ssl || !output || output_size <= 0) {
+        mbedtls_printf("Invalid parameters\n");
+        return MBEDTLS_ERR_SSL_BAD_INPUT_DATA;
+    }
+
+    int ret = 0;
+    // Assume *read_len is correctly initialized before the first call to this function.
+
+//    mbedtls_net_set_nonblock((mbedtls_net_context *)net);
+
+    do {
+        ret = mbedtls_ssl_read((mbedtls_ssl_context *)ssl, (unsigned char *)(output + *read_len), MIN(64, output_size - *read_len));
+
+        if (ret > 0) {
+            *read_len += ret;  // Correctly accumulate the total read length
+        } else if (ret == 0 || ret == MBEDTLS_ERR_SSL_WANT_READ || ret == MBEDTLS_ERR_SSL_WANT_WRITE) {
+            break;  // Treat these cases as reasons to stop reading without error
+        } else {
+            mbedtls_printf("Read error: %d\n", ret);
+            return ret;  // Return on actual error
+        }
+    } while (*read_len < output_size && ret > 0);
+
+ //   mbedtls_net_set_block((mbedtls_net_context *)net);
+
+    return (*read_len > 0) ? 0 : ret;  // Return 0 if any bytes were read successfully, or the error code
+}
+
+
 /*
 int sslRead(mbedtls_ssl_context *ssl, const char *buf, int blen)
 {
