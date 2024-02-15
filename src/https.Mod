@@ -197,10 +197,11 @@ END dump;
 PROCEDURE test;
 VAR
   h: TLSClient;
-  host: ARRAY 16 OF CHAR; port: ARRAY 8 OF CHAR;
+  host: ARRAY 64 OF CHAR; port: ARRAY 8 OF CHAR;
   answer: strTypes.pstring;
 BEGIN
-  COPY("norayr.am", host); COPY("443", port);
+  (*COPY("norayr.am", host); COPY("443", port);*)
+  COPY("xn--y9a5bft.xn--y9a3aq", host); COPY("443", port);
   (*h := Create(host, port, "/index.html");*)
   h := Create(host, port, "/SETs.pdf");
   answer := h.Get(h);
