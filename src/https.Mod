@@ -68,11 +68,7 @@ BEGIN
     r := -1;
   IF h^.trn IS TLSSocket THEN
     IF toRead = -1 THEN len := LEN(buf)-1 ELSE len := toRead END;
-                                      Out.String("-----------------------"); Out.Ln;
-                                      Out.String("entered reader, len is "); Out.Int(len, 0);  Out.Ln;
     r := mbedtls.read(h^.trn(TLSSocket).sslContext, buf, len);
-    Out.String("have read: '"); Out.String(buf); Out.Char("'"); Out.Ln;
-                                      Out.String("-----------------------"); Out.Ln;
   ELSE
     Out.String("https client is not initialized with tls socket"); Out.Ln;
     HALT(5);
@@ -88,10 +84,6 @@ VAR
 BEGIN
   h^.connectionFlag := FALSE;
   IF h^.trn IS TLSSocket THEN
-                                      Out.String("-----------------------"); Out.Ln;
-                                      Out.String("entered readBuf, len is "); Out.Int(LEN(buf), 0); Out.String(" passed haveRead is "); Out.Int(haveRead, 0);  Out.Ln;
-    (*r := mbedtls.read(h^.trn(TLSSocket).sslContext, buf, haveRead);*)
-    (*r := mbedtls.readBuf(h^.trn(TLSSocket).sslContext, buf, haveRead);*)
     r := mbedtls.readBuf(h^.trn(TLSSocket).netContext, h^.trn(TLSSocket).sslContext, buf, haveRead);
     IF r <= 0 THEN
       h^.connectionFlag := FALSE;
@@ -99,10 +91,6 @@ BEGIN
     ELSE
       h^.connectionFlag := TRUE
     END;
-                                      Out.String("after readBuf r is "); Out.Int(r, 0);  Out.Ln;
-                                      Out.String("after readBuf haveRead is "); Out.Int(haveRead, 0);  Out.Ln;
-                                      Out.String("have read: '"); Out.String(buf); Out.Char("'"); Out.Ln;
-                                      Out.String("-----------------------"); Out.Ln;
    ELSE
     Out.String("https client is not initialized with tls socket"); Out.Ln;
     HALT(5);
