@@ -11,7 +11,7 @@ TYPE
      sslConf*    : ARRAY 512 OF CHAR;   (* 400 bytes *)
    END;
 
-   TLSClient = POINTER TO TLSClientDesc;
+   TLSClient* = POINTER TO TLSClientDesc;
    TLSClientDesc* = RECORD(http.ClientDesc)
      entropy*    : ARRAY 40000 OF CHAR; (* 1080 on x86_64, 37000 on armhl *)
      ctrDrbg*    : ARRAY 512 OF CHAR;   (* 392 bytes *)
@@ -182,21 +182,5 @@ BEGIN
 END dump;
 *)
 
-PROCEDURE test;
-VAR
-  h: TLSClient;
-  host: ARRAY 64 OF CHAR; port: ARRAY 8 OF CHAR;
-  answer: strTypes.pstring;
-BEGIN
-  (*COPY("norayr.am", host); COPY("443", port);*)
-  COPY("xn--y9a5bft.xn--y9a3aq", host); COPY("443", port);
-  (*h := Create(host, port, "/index.html");*)
-  h := Create(host, port, "/SETs.pdf");
-  answer := h.Get(h);
-  h.Save(h);
-END test;
-
-BEGIN
-  test
 END https.
 
