@@ -1,6 +1,6 @@
 MODULE https;
 
-IMPORT SYSTEM, Strings, Out,
+IMPORT Strings, Out,
        http, strTypes, strUtils, mbedtls;
 
 TYPE
