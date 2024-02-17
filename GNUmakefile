@@ -46,8 +46,8 @@ build_deps:
 buildThis:
 	cp $(mkfile_dir_path)/certs/* $(BUILD)/
 	cp $(mkfile_dir_path)/libs/*.a $(BUILD)/
-	cp $(mkfile_dir_path)/src/mb.h $(BUILD)/
-	cd $(BUILD) && $(CC) -c $(mkfile_dir_path)/src/mb.c
+	#cp $(mkfile_dir_path)/src/mb.h $(BUILD)/
+	#cd $(BUILD) && $(CC) -c $(mkfile_dir_path)/src/mb.c
 	cd $(BUILD) && $(VOC) -s $(mkfile_dir_path)/src/mbedtls.Mod
 	cd $(BUILD) && $(VOC) -c $(mkfile_dir_path)/src/https.Mod
 	cd $(BUILD) && $(VOC) -cm $(mkfile_dir_path)/test/testHttps.Mod

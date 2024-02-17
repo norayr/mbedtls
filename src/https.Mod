@@ -16,10 +16,30 @@ TYPE
      entropy*    : ARRAY 40000 OF CHAR; (* 1080 on x86_64, 37000 on armhl *)
      ctrDrbg*    : ARRAY 512 OF CHAR;   (* 392 bytes *)
      cacert*     : ARRAY 1024 OF CHAR; (* 616 bytes *)
+     crtpath*    : ARRAY 256 OF CHAR;
+     pers*       : ARRAY 128 OF CHAR;
+   setCertPath*  : PROCEDURE (VAR h: TLSClient; path: ARRAY OF CHAR);
+   setPers*      : PROCEDURE (VAR h: TLSClient; pers: ARRAY OF CHAR);
+      Init*      : PROCEDURE (VAR h: TLSClient);
    END;
 
-PROCEDURE -aaa
-'#include "mb.h"';
+PROCEDURE init(VAR h: TLSClient);
+BEGIN
+  IF h^.trn IS TLSSocket THEN
+    mbedtls.init(h^.trn(TLSSocket).netContext, h^.trn(TLSSocket).sslContext, h^.trn(TLSSocket).sslConf, h^.entropy, h^.ctrDrbg, h^.cacert, h^.pers, h^.crtpath)
+  END;
+END init;
+
+PROCEDURE setcertpath(VAR h: TLSClient; path: ARRAY OF CHAR);
+BEGIN
+  COPY(path, h^.crtpath);
+END setcertpath;
+
+(* Personalization data (Device specific identifiers) *)
+PROCEDURE setpers(VAR h: TLSClient; str: ARRAY OF CHAR);
+BEGIN
+  COPY(str, h^.pers)
+END setpers;
 
 PROCEDURE connector(VAR h: http.Client):BOOLEAN;
 VAR i: LONGINT;
@@ -36,9 +56,11 @@ BEGIN
 END connector;
 
 PROCEDURE disconnector(VAR h: http.Client);
+VAR
+  i: LONGINT;
 BEGIN
   IF h IS TLSClient THEN
-    mbedtls.disconnect(h^.trn(TLSSocket).netContext, h^.trn(TLSSocket).sslContext, h^.trn(TLSSocket).sslConf, h(TLSClient)^.entropy, h(TLSClient)^.ctrDrbg);
+    i := mbedtls.disconnect(h^.trn(TLSSocket).netContext, h^.trn(TLSSocket).sslContext, h^.trn(TLSSocket).sslConf, h(TLSClient)^.entropy, h(TLSClient)^.ctrDrbg);
   ELSE
     Out.String("https client is not initialized with tls socket"); Out.Ln;
     HALT(5);
@@ -147,6 +169,15 @@ BEGIN
   hs.ReadBuf := readBuf;
   hs.Write := writer;
 
+  hs.setCertPath := setcertpath;
+  hs.setPers     := setpers;
+
+  (*hs.setCertPath(hs, "/etc/ssl/certs/ca-certificates.crt");
+  hs.setCertPath(hs, "./isrgrootx1.pem");*)
+  hs.setCertPath(hs, "./ca-certificates.crt");
+
+  hs.setPers(hs, "oberon_mbedtls_client");
+  hs.Init := init;
   RETURN hs
 
 END Create;

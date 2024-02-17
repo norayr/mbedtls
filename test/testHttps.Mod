@@ -11,6 +11,7 @@ BEGIN
   COPY("xn--y9a5bft.xn--y9a3aq", host); COPY("443", port);
   (*h := https.Create(host, port, "/index.html");*)
   h := https.Create(host, port, "/SETs.pdf");
+  h.Init(h);
   answer := h.Get(h);
   h.Save(h);
 END test;
