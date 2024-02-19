@@ -169,6 +169,9 @@ BEGIN
   hs.ReadBuf := readBuf;
   hs.Write := writer;
 
+  hs.appendHeader := http.appendHdrLine;
+  hs.appendAuthHdr := http.appendUserPasswdHdr;
+
   hs.setCertPath := setcertpath;
   hs.setPers     := setpers;
 

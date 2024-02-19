@@ -1,4 +1,4 @@
-DEPEND = github.com/norayr/strutils github.com/norayr/Internet github.com/norayr/http
+DEPEND = github.com/norayr/strutils github.com/norayr/base64 github.com/norayr/Internet github.com/norayr/http
 CC = gcc -O0
 VOC = /opt/voc/bin/voc
 mkfile_path := $(abspath $(lastword $(MAKEFILE_LIST)))
