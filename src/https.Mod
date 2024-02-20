@@ -175,9 +175,9 @@ BEGIN
   hs.setCertPath := setcertpath;
   hs.setPers     := setpers;
 
-  (*hs.setCertPath(hs, "/etc/ssl/certs/ca-certificates.crt");
-  hs.setCertPath(hs, "./isrgrootx1.pem");*)
-  hs.setCertPath(hs, "./ca-certificates.crt");
+  hs.setCertPath(hs, "/etc/ssl/certs/ca-certificates.crt");
+  (*hs.setCertPath(hs, "./isrgrootx1.pem");*)
+  (*hs.setCertPath(hs, "./ca-certificates.crt");*)
 
   hs.setPers(hs, "oberon_mbedtls_client");
   hs.Init := init;
