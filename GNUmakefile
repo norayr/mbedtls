@@ -64,9 +64,9 @@ buildThis:
 				cd $(BUILD) && $(VOC) -c $(mkfile_dir_path)/src/https.Mod
 				cd $(BUILD) && $(VOC) -cm $(mkfile_dir_path)/test/testHttps.Mod
 				#cd $(BLD) && gcc -o testHttps *.o -static -L/opt/voc/lib -lvoc-O2 /opt/voc/lib/libvoc-O2.a -L. -lmbedtls -lmbedcrypto -lmbedx509 libmbedcrypto.a libmbedtls.a libmbedx509.a
-				cd $(BUILD) && gcc -o testHttps *.o -static -L/opt/voc/lib -lvoc-O2 /opt/voc/lib/libvoc-O2.a -L. -lmbedtls -lmbedcrypto -lmbedx509 libmbedcrypto.a libmbedtls.a libmbedx509.a
 
 tests:
+				cd $(BUILD) && gcc -o testHttps *.o -static -L/opt/voc/lib -lvoc-O2 /opt/voc/lib/libvoc-O2.a -L. -lmbedtls -lmbedcrypto -lmbedx509 libmbedcrypto.a libmbedtls.a libmbedx509.a
 	#cd $(BUILD) && $(VOC) $(mkfile_dir_path)/test/testHttp.Mod -m
 	#build/testList
 
