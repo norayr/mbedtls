@@ -18,12 +18,16 @@ PROCEDURE -aincludeC
 PROCEDURE -aincludeCo
 '#include "mbedtls/config.h"';
 
-
 PROCEDURE -aincludeNS
 '#include "mbedtls/net_sockets.h"';
 
 PROCEDURE -aincludex509crt
 '#include "mbedtls/x509_crt.h"';
+
+(* test *)
+PROCEDURE -aincludeDebugOpt
+'#include "mbedtls/debug.h"';
+
 
 (*
 #include "mbedtls/platform.h"
@@ -37,6 +41,17 @@ PROCEDURE -aincludex509crt
 PROCEDURE -aaa
 '#include "mb.h"';
 *)
+
+(* test *)
+PROCEDURE -sslConfAuthmode(conf: ARRAY OF SYSTEM.BYTE)
+"mbedtls_ssl_conf_authmode((mbedtls_ssl_config *)conf, MBEDTLS_SSL_VERIFY_NONE)";
+
+PROCEDURE setAuthModeNone*(VAR conf: ARRAY OF SYSTEM.BYTE);
+BEGIN
+  sslConfAuthmode(conf);
+END setAuthModeNone;
+
+(********)
 
 PROCEDURE -netInit(VAR ctx: ARRAY OF SYSTEM.BYTE)
 "mbedtls_net_init( (mbedtls_net_context *) ctx)";
